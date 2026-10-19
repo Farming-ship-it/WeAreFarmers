@@ -1,0 +1,16 @@
+{
+  "name": "Farm Order Board",
+  "short_name": "Farm Orders",
+  "description": "Track your Hay Day orders, barn stock, and what to make next.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#7FCBF0",
+  "theme_color": "#7FCBF0",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

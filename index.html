@@ -1,0 +1,519 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Farm Orders">
+<meta name="theme-color" content="#7FCBF0">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}button,input,select,textarea{-webkit-tap-highlight-color:transparent}</style>
+<title>Farm Order Board</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@400;600;700;800;900&display=swap">
+<style>
+/* Layout: one phone-width column under a bright cartoon sky; wooden sign header, plank tabs, paper order slips in wooden frames. Deliberately one daytime look in every theme. */
+:root{
+  --sky:#7FCBF0; --sky2:#BFE7F8; --grass:#7CC34A; --grass-dk:#4E8F2A;
+  --wood:#B97A3F; --wood-dk:#7A4A20; --wood-lt:#D9A066; --outline:#5A3414;
+  --paper:#FFF8E2; --paper2:#FBEBC0; --ink:#4A2E12; --muted:#8A6A44; --line:#E7CF9C;
+  --field:#5DB82E; --field-dk:#3E8A1A; --field-ink:#FFFFFF;
+  --hay:#FFCC33; --hay-dk:#D99A00; --hay-soft:#FFEFB0;
+  --barn:#D9442B; --barn-soft:#FFD9CF; --ok:#3E8A1A; --ok-soft:#DDF4C8;
+  --display:"Lilita One","Arial Rounded MT Bold","Trebuchet MS",system-ui,sans-serif;
+  --body:"Nunito",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html{background:var(--sky)}
+body{color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.45;min-height:100%;
+  background:
+    radial-gradient(ellipse 120px 38px at 12% 90px,#fff 60%,transparent 62%),
+    radial-gradient(ellipse 80px 30px at 20% 72px,#fff 60%,transparent 62%),
+    radial-gradient(ellipse 140px 42px at 86% 150px,#fff 60%,transparent 62%),
+    radial-gradient(ellipse 90px 32px at 78% 132px,#fff 60%,transparent 62%),
+    linear-gradient(var(--sky) 0,var(--sky2) 420px,#D8F0C4 560px,var(--grass) 700px,var(--grass) 100%);
+  background-attachment:scroll}
+.wrap{max-width:640px;margin:0 auto;padding-block:18px 60px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:16px}
+h1,h2,h3{font-family:var(--display);font-weight:400;margin:0;line-height:1.1;text-wrap:balance;letter-spacing:.01em}
+.outlined{color:#fff;text-shadow:-2px -2px 0 var(--outline),2px -2px 0 var(--outline),-2px 2px 0 var(--outline),2px 2px 0 var(--outline),0 4px 0 var(--outline)}
+h1{font-size:34px}
+h2{font-size:22px}
+.sign{position:relative;background:repeating-linear-gradient(180deg,var(--wood) 0 30px,var(--wood-dk) 30px 32px);border:4px solid var(--outline);border-radius:14px;padding:14px 16px 12px;box-shadow:0 5px 0 var(--outline)}
+.sign::before,.sign::after{content:"";position:absolute;top:10px;width:9px;height:9px;border-radius:50%;background:#E8D2A8;box-shadow:inset -2px -2px 0 rgba(0,0,0,.25)}
+.sign::before{left:10px}.sign::after{right:10px}
+.top{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.sub{color:#FFF3D6;font-size:14px;font-weight:700;margin-top:4px;text-shadow:0 1px 0 var(--outline)}
+.save{font-size:12px;color:#FFF3D6;font-weight:800;text-shadow:0 1px 0 var(--outline)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.stat{background:var(--paper);border:3px solid var(--wood-dk);border-radius:14px;padding:9px 10px 8px;box-shadow:0 3px 0 var(--wood-dk)}
+.stat b{display:flex;align-items:center;gap:6px;font-family:var(--display);font-weight:400;font-size:24px;font-variant-numeric:tabular-nums;line-height:1}
+.stat span{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:800}
+@media (max-width:420px){.stats{grid-template-columns:repeat(2,1fr)}}
+.coin{display:inline-block;flex:none;width:16px;height:16px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#FFF3A0,var(--hay) 45%,var(--hay-dk));border:2px solid #A86F00;vertical-align:-3px}
+.star{display:inline-block;flex:none;width:16px;height:16px;background:#5BC0F0;clip-path:polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%);vertical-align:-2px}
+.tabs{display:flex;gap:6px}
+.tabs button{flex:1;border:3px solid var(--outline);background:linear-gradient(var(--wood-lt),var(--wood));color:#fff;font:400 17px var(--display);letter-spacing:.02em;padding:8px 6px 7px;border-radius:12px;cursor:pointer;box-shadow:0 4px 0 var(--outline);text-shadow:0 2px 0 var(--outline)}
+.tabs button[aria-selected="true"]{background:linear-gradient(#8EE05A,var(--field));transform:translateY(2px);box-shadow:0 2px 0 var(--outline)}
+.tabs .count{font-variant-numeric:tabular-nums;margin-left:4px}
+button{font-family:var(--body)}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #fff;outline-offset:2px;box-shadow:0 0 0 6px var(--outline)}
+.btn{border:3px solid var(--field-dk);border-radius:12px;padding:8px 14px 7px;font:400 17px var(--display);letter-spacing:.02em;cursor:pointer;background:linear-gradient(#8EE05A,var(--field));color:#fff;box-shadow:0 4px 0 var(--field-dk);text-shadow:0 2px 0 var(--field-dk)}
+.btn:active:not(:disabled){transform:translateY(3px);box-shadow:0 1px 0 var(--field-dk)}
+.btn.ghost{background:var(--paper);color:var(--ink);border-color:var(--wood);box-shadow:0 3px 0 var(--wood);text-shadow:none}
+.btn.hay{background:linear-gradient(#FFE27A,var(--hay));color:var(--ink);border-color:var(--hay-dk);box-shadow:0 4px 0 var(--hay-dk);text-shadow:none}
+.btn.small{padding:5px 10px 4px;font-size:15px}
+.btn:disabled{filter:grayscale(.8);opacity:.6;cursor:not-allowed}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.spread{justify-content:space-between}
+.list{display:flex;flex-direction:column;gap:12px}
+.heading{display:inline-block}
+.ticket{position:relative;background:var(--paper);border:4px solid var(--wood);border-radius:16px;box-shadow:0 5px 0 var(--wood-dk);overflow:hidden}
+.ticket.ready{border-color:var(--field);box-shadow:0 5px 0 var(--field-dk)}
+.thead{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:10px 12px;background:var(--paper2);border-bottom:2px dashed var(--line)}
+.who{font-family:var(--display);font-size:18px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.kind{font-size:11px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;padding:3px 9px;border-radius:999px;background:var(--wood);color:#fff;white-space:nowrap}
+.pill{font-size:12px;font-weight:900;padding:3px 10px;border-radius:999px;white-space:nowrap;border:2px solid currentColor}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.short{background:var(--barn-soft);color:var(--barn)}
+.items{display:flex;flex-direction:column;padding:4px 12px}
+.it{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;padding:7px 0;border-bottom:1px solid var(--line)}
+.it:last-child{border-bottom:0}
+.it .nm{font-weight:800;min-width:0;overflow-wrap:anywhere}
+.it .need{font-variant-numeric:tabular-nums;color:var(--muted);font-size:13px;font-weight:700;white-space:nowrap}
+.have{font-variant-numeric:tabular-nums;font-weight:900;font-size:13px;padding:2px 8px;border-radius:8px;white-space:nowrap}
+.have.ok{background:var(--ok-soft);color:var(--ok)}
+.have.short{background:var(--barn-soft);color:var(--barn)}
+.tfoot{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 12px;background:var(--hay-soft);border-top:2px solid var(--line);flex-wrap:wrap}
+.reward{display:flex;align-items:center;gap:5px;font-family:var(--display);font-size:18px;font-variant-numeric:tabular-nums}
+.reward .xp{display:inline-flex;align-items:center;gap:5px;margin-left:8px}
+.empty{background:var(--paper);border:4px dashed var(--wood-lt);border-radius:16px;padding:22px 16px;text-align:center;color:var(--muted);font-weight:600}
+.empty h3{color:var(--ink);font-size:22px;margin-bottom:6px}
+.empty .row{justify-content:center;margin-top:14px}
+.sheet{background:var(--paper);border:4px solid var(--field);border-radius:18px;box-shadow:0 5px 0 var(--field-dk);padding:14px;display:flex;flex-direction:column;gap:12px}
+.sheet h2{color:var(--ink)}
+label{font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);display:flex;flex-direction:column;gap:4px;min-width:0}
+input,select{font:700 15px var(--body);color:var(--ink);background:#fff;border:2px solid var(--line);border-radius:10px;padding:8px 10px;width:100%;min-width:0}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{display:inline-flex;align-items:center;gap:6px;background:var(--hay-soft);border:2px solid var(--hay-dk);border-radius:999px;padding:4px 5px 4px 11px;font-weight:800;font-size:14px}
+.chip button{border:0;background:var(--barn);color:#fff;width:22px;height:22px;border-radius:50%;cursor:pointer;font-weight:900;line-height:1}
+.addrow{display:grid;grid-template-columns:1fr 70px auto;gap:8px;align-items:end}
+.barnitem{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;background:var(--paper);border:3px solid var(--wood);border-radius:14px;box-shadow:0 3px 0 var(--wood-dk);padding:8px 8px 8px 12px}
+.barnitem .nm{font-family:var(--display);font-size:18px;min-width:0;overflow-wrap:anywhere}
+.barnitem .nm small{display:block;font-family:var(--body);font-size:12px;color:var(--barn);font-weight:900}
+.step{display:flex;align-items:center;gap:4px}
+.step button{width:34px;height:34px;border-radius:10px;border:3px solid var(--hay-dk);background:linear-gradient(#FFE27A,var(--hay));color:var(--ink);font-weight:900;font-size:18px;cursor:pointer;box-shadow:0 2px 0 var(--hay-dk)}
+.step input{width:58px;text-align:center;font-variant-numeric:tabular-nums;padding:6px 4px}
+.note{font-size:14px;color:var(--ink);font-weight:700}
+.panel{background:rgba(255,248,226,.92);border:3px solid var(--wood);border-radius:14px;padding:10px 12px}
+.make{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;background:var(--paper);border:3px solid var(--wood);border-radius:14px;box-shadow:0 3px 0 var(--wood-dk);padding:10px 12px}
+.make strong{font-family:var(--display);font-weight:400;font-size:19px}
+.make b{font-family:var(--display);font-weight:400;font-size:26px;color:var(--barn);font-variant-numeric:tabular-nums}
+.make .for{font-size:12px;color:var(--muted);font-weight:700}
+details summary{cursor:pointer;font-family:var(--display);font-size:18px;color:#fff;text-shadow:0 2px 0 var(--grass-dk);padding:6px 0}
+.done .ticket{opacity:.8}
+.confirm{display:flex;gap:6px;align-items:center;font-size:13px;font-weight:800;flex-wrap:wrap}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));background:var(--wood);border:3px solid var(--outline);color:#fff;font-family:var(--display);padding:8px 18px;border-radius:999px;font-size:17px;max-width:calc(100% - 32px);box-shadow:0 4px 0 var(--outline)}
+.share{display:flex;flex-direction:column;gap:10px;margin-top:6px}
+.sharecard{background:var(--paper);border:4px solid var(--hay-dk);border-radius:16px;box-shadow:0 5px 0 #A86F00;padding:12px;display:flex;flex-direction:column;gap:10px}
+.sharecard textarea{font:700 15px var(--body);color:var(--ink);background:#fff;border:2px solid var(--line);border-radius:10px;padding:10px;width:100%;resize:vertical;line-height:1.5}
+.sharecard .btn{align-self:flex-start}
+.sharecard .for{font-size:12px;color:var(--muted);font-weight:700}
+.tick{flex-direction:row;align-items:center;gap:6px;text-transform:none;letter-spacing:0;font-size:14px;color:var(--ink);font-weight:800;cursor:pointer}
+.tick input{width:18px;height:18px;accent-color:var(--field)}
+.overlay{position:fixed;inset:0;z-index:40;background:rgba(40,25,8,.55);display:flex;align-items:center;justify-content:center;padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.notice{background:var(--paper);border:4px solid var(--wood);border-radius:18px;box-shadow:0 6px 0 var(--wood-dk);max-width:420px;width:100%;max-height:100%;overflow:auto;padding:16px 18px;display:flex;flex-direction:column;gap:10px;font-weight:600}
+.notice p,.notice ul{margin:0}
+.notice ul{padding-left:20px;display:flex;flex-direction:column;gap:4px}
+.notice .small{font-size:13px;color:var(--muted)}
+.notice .btn{align-self:stretch}
+.backup{display:flex;flex-direction:column;gap:10px;margin-top:10px}
+#confetti{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:50}
+.quick{display:flex;flex-direction:column;gap:10px}
+.quickgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px}
+.quickcard{background:var(--paper);border:3px solid var(--hay-dk);border-radius:14px;box-shadow:0 3px 0 var(--hay-dk);padding:9px 11px;display:flex;flex-direction:column;gap:5px;min-width:0}
+.quickcard .who{font-size:17px}
+.quickcard .left{font-size:12px;font-weight:900;color:var(--barn);white-space:nowrap}
+.quickcard .tomake{font-size:13px;font-weight:700;color:var(--ink);overflow-wrap:anywhere}
+.quickcard .reward{font-size:16px}
+.qnote{margin:0;font-size:12px;font-weight:700;color:var(--ink);background:rgba(255,248,226,.92);border-radius:10px;padding:6px 10px}
+.sortbar{display:flex;flex-wrap:wrap;gap:6px;align-items:center;background:rgba(255,248,226,.92);border:3px solid var(--wood);border-radius:14px;padding:8px 10px}
+.sortbar span{font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-right:2px}
+.sortbar button{border:2px solid var(--wood);background:#fff;color:var(--ink);font:800 13px var(--body);padding:5px 11px;border-radius:999px;cursor:pointer}
+.sortbar button[aria-pressed="true"]{background:var(--hay);border-color:var(--hay-dk);box-shadow:0 2px 0 var(--hay-dk)}
+.example{font-size:11px;font-weight:900;color:var(--barn);text-transform:uppercase;letter-spacing:.06em}
+@media (prefers-reduced-motion:no-preference){.btn,.tabs button{transition:transform .08s,box-shadow .08s}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="top sign">
+    <div>
+      <h1 class="outlined">Farm Order Board</h1>
+      <div class="sub">Track your Hay Day orders and what's in your barn and silo.</div>
+    </div>
+    <div class="save" id="saveState" aria-live="polite"></div>
+  </header>
+
+  <section class="stats" aria-label="Summary">
+    <div class="stat"><b id="sOpen">0</b><span>Open orders</span></div>
+    <div class="stat"><b id="sReady">0</b><span>Ready now</span></div>
+    <div class="stat"><b><i class="coin" aria-hidden="true"></i><span id="sWaiting" style="all:unset">0</span></b><span>Coins waiting</span></div>
+    <div class="stat"><b><i class="coin" aria-hidden="true"></i><span id="sEarned" style="all:unset">0</span></b><span>Coins earned</span></div>
+  </section>
+
+  <nav class="tabs" role="tablist">
+    <button role="tab" id="tab-orders" aria-selected="true" data-tab="orders">Orders</button>
+    <button role="tab" id="tab-barn" aria-selected="false" data-tab="barn">Barn</button>
+    <button role="tab" id="tab-make" aria-selected="false" data-tab="make">To make<span class="count" id="makeCount"></span></button>
+  </nav>
+
+  <main id="view"></main>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<datalist id="itemNames"></datalist>
+
+<script>
+const ITEMS = ["Wheat", "Corn", "Carrots", "Soybeans", "Sugarcane", "Indigo", "Cotton", "Pumpkin", "Potato", "Chili pepper", "Tomato", "Strawberry", "Apple", "Raspberry", "Cherry", "Blackberry", "Cacao", "Coffee beans", "Egg", "Milk", "Bacon", "Wool", "Goat milk", "Bread", "Corn bread", "Cookie", "Raspberry muffin", "Blackberry muffin", "Pizza", "Spicy pizza", "Potato bread", "Chicken feed", "Cow feed", "Pig feed", "Sheep feed", "Goat feed", "Cream", "Butter", "Cheese", "Goat cheese", "Brown sugar", "White sugar", "Syrup", "Popcorn", "Buttered popcorn", "Chili popcorn", "Pancake", "Bacon and eggs", "Hamburger", "Roasted tomatoes", "Baked potatoes", "Fish and chips", "Fish burger", "Carrot pie", "Pumpkin pie", "Bacon pie", "Apple pie", "Feta pie", "Casserole", "Shepherd's pie", "Fish pie", "Sweater", "Cotton fabric", "Blue woolly hat", "Blue sweater", "Red scarf", "Flower shawl", "Cotton shirt", "Wooly chaps", "Violet dress", "Pillow", "Blanket", "Carrot cake", "Cream cake", "Red berry cake", "Cheesecake", "Strawberry cake", "Chocolate cake", "Potato feta cake", "Carrot juice", "Apple juice", "Cherry juice", "Tomato juice", "Berry juice", "Vanilla ice cream", "Cherry popsicle", "Strawberry ice cream", "Chocolate ice cream", "Apple jam", "Blackberry jam", "Raspberry jam", "Cherry jam", "Bracelet", "Necklace", "Diamond ring", "Silver bar", "Gold bar", "Platinum bar", "Espresso", "Caffe latte", "Caffe mocha", "Hot chocolate", "Raspberry mocha", "Toffee", "Caramel apple", "Lollipop", "Chocolate", "Jelly beans", "Tomato soup", "Lobster soup", "Fish soup", "Bolt", "Plank", "Duct tape", "Nail", "Screw", "Wood panel", "Land deed", "Mallet", "Marker stake", "Saw", "Axe", "Dynamite", "TNT barrel", "Shovel", "Pickaxe"];
+const TIMES = {"wheat":["Field",2],"corn":["Field",5],"carrots":["Field",10],"soybeans":["Field",20],"sugarcane":["Field",30],"indigo":["Field",120],"cotton":["Field",150],"pumpkin":["Field",180],"potato":["Field",220],"chili pepper":["Field",240],"tomato":["Field",360],"strawberry":["Field",480],"apple":["Field",960],"raspberry":["Field",1080],"cherry":["Field",1680],"blackberry":["Field",1920],"cacao":["Field",2040],"coffee beans":["Field",1440],"egg":["Chickens",20],"milk":["Cows",60],"bacon":["Pigs",240],"wool":["Sheep",360],"goat milk":["Goats",480],"bread":["Bakery",5],"corn bread":["Bakery",30],"cookie":["Bakery",60],"raspberry muffin":["Bakery",45],"blackberry muffin":["Bakery",45],"pizza":["Bakery",15],"spicy pizza":["Bakery",15],"potato bread":["Bakery",45],"chicken feed":["Feed Mill",5],"cow feed":["Feed Mill",10],"pig feed":["Feed Mill",20],"sheep feed":["Feed Mill",30],"goat feed":["Feed Mill",40],"cream":["Dairy",20],"butter":["Dairy",30],"cheese":["Dairy",60],"goat cheese":["Dairy",90],"brown sugar":["Sugar Mill",20],"white sugar":["Sugar Mill",40],"syrup":["Sugar Mill",90],"popcorn":["Popcorn Pot",30],"buttered popcorn":["Popcorn Pot",60],"chili popcorn":["Popcorn Pot",120],"pancake":["BBQ Grill",30],"bacon and eggs":["BBQ Grill",60],"hamburger":["BBQ Grill",120],"roasted tomatoes":["BBQ Grill",90],"baked potatoes":["BBQ Grill",35],"fish and chips":["BBQ Grill",90],"fish burger":["BBQ Grill",120],"carrot pie":["Pie Oven",60],"pumpkin pie":["Pie Oven",120],"bacon pie":["Pie Oven",180],"apple pie":["Pie Oven",150],"feta pie":["Pie Oven",90],"casserole":["Pie Oven",120],"shepherd's pie":["Pie Oven",100],"fish pie":["Pie Oven",120],"sweater":["Loom",120],"cotton fabric":["Loom",30],"blue woolly hat":["Loom",60],"blue sweater":["Loom",180],"red scarf":["Loom",150],"flower shawl":["Loom",90],"cotton shirt":["Sewing Machine",45],"wooly chaps":["Sewing Machine",90],"violet dress":["Sewing Machine",135],"pillow":["Sewing Machine",180],"blanket":["Sewing Machine",210],"carrot cake":["Cake Oven",90],"cream cake":["Cake Oven",180],"red berry cake":["Cake Oven",60],"cheesecake":["Cake Oven",240],"strawberry cake":["Cake Oven",180],"chocolate cake":["Cake Oven",120],"potato feta cake":["Cake Oven",120],"carrot juice":["Juice Press",30],"apple juice":["Juice Press",120],"cherry juice":["Juice Press",150],"tomato juice":["Juice Press",90],"berry juice":["Juice Press",180],"vanilla ice cream":["Ice Cream Maker",120],"cherry popsicle":["Ice Cream Maker",180],"strawberry ice cream":["Ice Cream Maker",240],"chocolate ice cream":["Ice Cream Maker",150],"apple jam":["Jam Maker",360],"blackberry jam":["Jam Maker",480],"raspberry jam":["Jam Maker",420],"cherry jam":["Jam Maker",420],"bracelet":["Jeweler",120],"necklace":["Jeweler",180],"diamond ring":["Jeweler",240],"silver bar":["Smelter",480],"gold bar":["Smelter",720],"platinum bar":["Smelter",960],"espresso":["Coffee Kiosk",5],"caffe latte":["Coffee Kiosk",10],"caffe mocha":["Coffee Kiosk",15],"hot chocolate":["Coffee Kiosk",25],"raspberry mocha":["Coffee Kiosk",30],"toffee":["Candy Machine",90],"caramel apple":["Candy Machine",120],"lollipop":["Candy Machine",720],"chocolate":["Candy Machine",1200],"jelly beans":["Candy Machine",1440],"tomato soup":["Soup Kitchen",90],"lobster soup":["Soup Kitchen",150],"fish soup":["Soup Kitchen",180]};
+const PARALLEL = new Set(["Field","Chickens","Cows","Pigs","Sheep","Goats"]);
+const ALIAS = {"carrot":"carrots","soybean":"soybeans","eggs":"egg","wool sweater":"sweater","chili peppers":"chili pepper","potatoes":"potato","tomatoes":"tomato","strawberries":"strawberry","apples":"apple","cookies":"cookie","pancakes":"pancake","pumpkins":"pumpkin","coffee bean":"coffee beans","caffè latte":"caffe latte","caffè mocha":"caffe mocha"};
+const TYPES = ["Truck","Boat","Visitor","Town","Derby","Other"];
+document.getElementById("itemNames").innerHTML = ITEMS.map(n=>`<option value="${n}">`).join("");
+
+const key = n => { const k=String(n||"").trim().toLowerCase(); return ALIAS[k]||k; };
+const nice = n => { const k=key(n); const hit=ITEMS.find(i=>key(i)===k); if(hit) return hit; const t=String(n).trim(); return t.charAt(0).toUpperCase()+t.slice(1); };
+const esc = s => String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fmt = n => Number(n||0).toLocaleString();
+const uid = () => Math.random().toString(36).slice(2,10)+Date.now().toString(36).slice(-4);
+
+let state = { barn:{}, orders:[] };
+let ui = { tab:"orders", adding:false, draft:null, confirmDel:null, barnFilter:"", sort:(()=>{ try{ return localStorage.getItem("farm-sort")||"ready"; }catch(e){ return "ready"; } })() };
+let ref = null, writing = false, dirty = false, saveTimer = null, loaded = false;
+
+/* ---------- storage ---------- */
+function local(set){ try{ if(set) localStorage.setItem("farm-board",JSON.stringify(state)); else return JSON.parse(localStorage.getItem("farm-board")||"null"); }catch(e){ return null; } }
+function localMode(){ setSave("Saved on this phone"); }
+function setSave(t){ document.getElementById("saveState").textContent = t; }
+function persist(){
+  if(local(true)===null) setSave("Couldn't save. Turn off Private Browsing.");
+  else localMode();
+}
+function boot(){
+  const saved = local(); if(saved && saved.orders) { state = saved; }
+  localMode(); loaded = true; render();
+  if("serviceWorker" in navigator){ navigator.serviceWorker.register("sw.js").catch(()=>{}); }
+}
+
+/* ---------- logic ---------- */
+const have = n => (state.barn[key(n)]||{}).n||0;
+const openOrders = () => state.orders.filter(o=>o.status!=="done");
+const fmtTime = m => { m=Math.round(m); if(m<60) return m+" min"; if(m<1440){ const h=Math.floor(m/60), r=m%60; return h+"h"+(r?" "+r+"m":""); } const d=Math.floor(m/1440), h=Math.round((m%1440)/60); return d+"d"+(h?" "+h+"h":""); };
+function timeLeft(o){
+  const per={}; const unknown=[];
+  o.items.forEach(i=>{ const short=i.qty-have(i.name); if(short<=0) return; const t=TIMES[key(i.name)];
+    if(!t){ unknown.push(nice(i.name)); return; }
+    const [b,m]=t; per[b]=PARALLEL.has(b) ? Math.max(per[b]||0,m) : (per[b]||0)+m*short; });
+  return { mins: Math.max(0,...Object.values(per)), unknown };
+}
+function timeLabel(o){ const t=timeLeft(o); if(!t.mins && t.unknown.length) return "No timer"; return "About "+fmtTime(t.mins)+(t.unknown.length?"+":""); }
+const fastCmp = (a,b)=>{ const ta=timeLeft(a), tb=timeLeft(b); return (isReady(b)-isReady(a)) || ((ta.unknown.length>0)-(tb.unknown.length>0)) || (ta.mins-tb.mins) || (missing(a)-missing(b)); };
+const missing = o => o.items.reduce((s,i)=>s+Math.max(0,i.qty-have(i.name)),0);
+const perItem = o => { const n=o.items.reduce((s,i)=>s+i.qty,0)||1; return ((+o.coins||0)+(+o.xp||0)*10)/n; };
+const isReady = o => o.items.every(i=>have(i.name)>=i.qty);
+function shortages(){
+  const need = {};
+  openOrders().forEach(o=>o.items.forEach(i=>{ const k=key(i.name); need[k]=need[k]||{name:nice(i.name),qty:0,orders:0}; need[k].qty+=i.qty; need[k].orders++; }));
+  return Object.values(need).map(x=>({...x,have:have(x.name),short:x.qty-have(x.name)})).filter(x=>x.short>0).sort((a,b)=>b.short-a.short);
+}
+function setHave(name,n){
+  const k=key(name); n=Math.max(0,Math.floor(Number(n)||0));
+  state.barn[k] = { name:nice(name), n };
+  persist();
+}
+function confetti(x,y){
+  if(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  let cv=document.getElementById("confetti");
+  if(!cv){ cv=document.createElement("canvas"); cv.id="confetti"; cv.setAttribute("aria-hidden","true"); document.body.appendChild(cv); }
+  const dpr=window.devicePixelRatio||1, W=innerWidth, H=innerHeight;
+  cv.width=W*dpr; cv.height=H*dpr; const ctx=cv.getContext("2d"); ctx.setTransform(dpr,0,0,dpr,0,0);
+  const colors=["#FFCC33","#5DB82E","#D9442B","#5BC0F0","#FFFFFF","#B97A3F","#FF8FB1"];
+  const parts=[]; const N=Math.min(160,Math.round(W/3));
+  for(let i=0;i<N;i++){ const a=-Math.PI/2+(Math.random()-.5)*Math.PI*1.1, sp=6+Math.random()*9;
+    parts.push({x,y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp-3,w:6+Math.random()*7,h:4+Math.random()*5,r:Math.random()*6,vr:(Math.random()-.5)*.4,c:colors[i%colors.length],shape:Math.random()<.25?"coin":"rect"}); }
+  const t0=performance.now(); cancelAnimationFrame(confetti.raf);
+  (function frame(now){
+    const life=(now-t0)/2400; ctx.clearRect(0,0,W,H);
+    parts.forEach(p=>{ p.vy+=.32; p.vx*=.985; p.vy*=.985; p.x+=p.vx; p.y+=p.vy; p.r+=p.vr;
+      ctx.save(); ctx.globalAlpha=Math.max(0,1-life*life); ctx.translate(p.x,p.y); ctx.rotate(p.r);
+      if(p.shape==="coin"){ ctx.fillStyle="#FFCC33"; ctx.strokeStyle="#A86F00"; ctx.lineWidth=2; ctx.beginPath(); ctx.ellipse(0,0,6,6*Math.abs(Math.cos(p.r*2))+1,0,0,Math.PI*2); ctx.fill(); ctx.stroke(); }
+      else { ctx.fillStyle=p.c; ctx.fillRect(-p.w/2,-p.h/2,p.w,p.h); }
+      ctx.restore(); });
+    if(life<1) confetti.raf=requestAnimationFrame(frame); else ctx.clearRect(0,0,W,H);
+  })(t0);
+}
+function toast(t){ const el=document.getElementById("toast"); el.textContent=t; el.hidden=false; clearTimeout(toast.t); toast.t=setTimeout(()=>el.hidden=true,2200); }
+
+/* ---------- render ---------- */
+function render(){
+  const open = openOrders(), done = state.orders.filter(o=>o.status==="done");
+  document.getElementById("sOpen").textContent = fmt(open.length);
+  document.getElementById("sReady").textContent = fmt(open.filter(isReady).length);
+  document.getElementById("sWaiting").textContent = fmt(open.reduce((s,o)=>s+(+o.coins||0),0));
+  document.getElementById("sEarned").textContent = fmt(done.reduce((s,o)=>s+(+o.coins||0),0));
+  const sh = shortages();
+  document.getElementById("makeCount").textContent = sh.length ? `(${sh.length})` : "";
+  document.querySelectorAll(".tabs button").forEach(b=>b.setAttribute("aria-selected", b.dataset.tab===ui.tab));
+  const v = document.getElementById("view");
+  v.innerHTML = ui.tab==="orders" ? viewOrders(open,done) : ui.tab==="barn" ? viewBarn() : viewMake(sh);
+  if(ui.adding){ const f=document.getElementById("dItem"); if(f && !ui.keepFocus) {} }
+}
+
+function ticket(o, finished){
+  const ready = isReady(o);
+  const missing = o.items.filter(i=>have(i.name)<i.qty).length;
+  const status = finished ? `<span class="pill ok">Delivered</span>` : ready ? `<span class="pill ok">Ready to send</span>` : `<span class="pill short">Short ${missing} item${missing>1?"s":""} · ${timeLabel(o).replace("About ","~")}</span>`;
+  const items = o.items.map(i=>{ const h=have(i.name), ok=h>=i.qty;
+    return `<div class="it"><span class="nm">${esc(nice(i.name))}</span><span class="need">need ${fmt(i.qty)}</span>${finished?"":`<span class="have ${ok?"ok":"short"}">have ${fmt(h)}</span>`}</div>`; }).join("");
+  const del = ui.confirmDel===o.id
+    ? `<span class="confirm">Delete this order? <button class="btn small" data-act="del-yes" data-id="${o.id}">Delete</button><button class="btn small ghost" data-act="del-no">Keep</button></span>`
+    : `<button class="btn small ghost" data-act="del" data-id="${o.id}">Delete</button>`;
+  const actions = finished
+    ? `<div class="row"><button class="btn small ghost" data-act="undo" data-id="${o.id}">Undo delivery</button>${del}</div>`
+    : `<div class="row">${del}<button class="btn small" data-act="deliver" data-id="${o.id}" ${ready?"":"disabled"} title="${ready?"Marks it done and takes the items out of your barn":"You need more items first"}">Deliver</button></div>`;
+  return `<article class="ticket ${!finished&&ready?"ready":""}">
+    <div class="thead"><div class="row" style="min-width:0;flex-wrap:nowrap"><span class="kind">${esc(o.type)}</span><span class="who">${esc(o.who||"")}</span>${o.example?`<span class="example">Example</span>`:""}</div>${status}</div>
+    <div class="items">${items}</div>
+    <div class="tfoot"><span class="reward"><i class="coin" aria-hidden="true"></i>${fmt(o.coins)}<span class="xp"><i class="star" aria-hidden="true"></i>${fmt(o.xp)} XP</span></span>${actions}</div>
+  </article>`;
+}
+
+function viewForm(){
+  const d = ui.draft;
+  return `<section class="sheet" aria-label="New order">
+    <div class="row spread"><h2>New order</h2><button class="btn small ghost" data-act="cancel">Cancel</button></div>
+    <div class="grid2">
+      <label for="dType">Type<select id="dType">${TYPES.map(t=>`<option ${d.type===t?"selected":""}>${t}</option>`).join("")}</select></label>
+      <label for="dWho">Who or where<input id="dWho" value="${esc(d.who)}" placeholder="Truck, Tom, Boat crate…" autocomplete="off"></label>
+    </div>
+    <div>
+      <div class="chips" id="chips">${d.items.length? d.items.map((i,ix)=>`<span class="chip">${esc(nice(i.name))} × ${fmt(i.qty)}<button data-act="rm-item" data-ix="${ix}" aria-label="Remove ${esc(nice(i.name))}">×</button></span>`).join("") : `<span class="note">Add each item the order asks for.</span>`}</div>
+    </div>
+    <div class="addrow">
+      <label for="dItem">Item<input id="dItem" list="itemNames" placeholder="Start typing, e.g. Bread" autocomplete="off"></label>
+      <label for="dQty">Need<input id="dQty" type="number" min="1" value="1" inputmode="numeric"></label>
+      <button class="btn hay" data-act="add-item">Add</button>
+    </div>
+    <div class="grid2">
+      <label for="dCoins">Coins<input id="dCoins" type="number" min="0" inputmode="numeric" value="${esc(d.coins)}"></label>
+      <label for="dXp">XP<input id="dXp" type="number" min="0" inputmode="numeric" value="${esc(d.xp)}"></label>
+    </div>
+    <button class="btn" data-act="save-order" ${d.items.length?"":"disabled"}>Save order</button>
+  </section>`;
+}
+
+function viewOrders(open, done){
+  let h = "";
+  if(ui.adding) h += viewForm();
+  else h += `<div class="row spread"><h2 class="outlined">Open orders</h2><button class="btn" data-act="new">+ New order</button></div>`;
+  if(!open.length && !ui.adding){
+    h += `<div class="empty"><h3>No open orders yet</h3>Add an order from your truck board, a boat crate, or a visitor. Then fill in your Barn and each order will show if you're ready to send it.<div class="row"><button class="btn" data-act="new">Add your first order</button><button class="btn ghost" data-act="sample">Try with example orders</button></div></div>`;
+  } else {
+    const by = { ready:(a,b)=>(isReady(b)-isReady(a))||(b.created-a.created), coins:(a,b)=>(b.coins-a.coins)||(isReady(b)-isReady(a)), xp:(a,b)=>(b.xp-a.xp)||(isReady(b)-isReady(a)), perItem:(a,b)=>(perItem(b)-perItem(a))||(isReady(b)-isReady(a)), newest:(a,b)=>b.created-a.created, fast:fastCmp };
+    const near = open.filter(o=>!isReady(o)).sort((a,b)=>fastCmp(a,b)||(b.coins-a.coins)).slice(0,3);
+    const readyN = open.filter(isReady).length;
+    if(!ui.adding && (near.length || readyN)) h += `<section class="quick" aria-label="Quickest to finish"><h2 class="outlined">Quickest to finish</h2>${readyN?`<p class="note panel" style="margin:0">${readyN} order${readyN>1?"s are":" is"} ready to send right now. Tap Deliver on ${readyN>1?"them":"it"} below.</p>`:""}${near.length?`<div class="quickgrid">${near.map((o,ix)=>`<div class="quickcard"><div class="row spread" style="flex-wrap:nowrap"><span class="who">${esc(o.who||o.type)}</span><span class="left">${timeLabel(o)}</span></div><div class="tomake">Make ${o.items.filter(i=>have(i.name)<i.qty).map(i=>`${esc(nice(i.name))} ×${fmt(i.qty-have(i.name))}`).join(", ")}</div><div class="reward"><i class="coin" aria-hidden="true"></i>${fmt(o.coins)}<span class="xp"><i class="star" aria-hidden="true"></i>${fmt(o.xp)}</span></div></div>`).join("")}</div><p class="for qnote">Ranked by time left using each item\'s normal make time. Crops and animals count as growing at the same time, machines make one item after another. Ingredients you still need to grow aren\'t counted, and upgraded machines may be faster.</p>`:""}</section>`;
+    const sorted = [...open].sort(by[ui.sort]||by.ready);
+    if(open.length>1 && !ui.adding) h += `<div class="sortbar" role="group" aria-label="Sort orders"><span>Sort by</span>${[["ready","Ready first"],["fast","Fastest"],["coins","Most coins"],["xp","Most XP"],["perItem","Best value"],["newest","Newest"]].map(([k,l])=>`<button data-act="sort" data-sort="${k}" aria-pressed="${ui.sort===k}">${l}</button>`).join("")}</div>${ui.sort==="perItem"?`<p class="note panel" style="margin:0">Best value puts orders that pay the most coins and XP for each item you hand over at the top.</p>`:""}`;
+    h += `<div class="list">${sorted.map(o=>ticket(o,false)).join("")}</div>`;
+  }
+  if(done.length){
+    h += `<details class="done"><summary>Delivered (${done.length})</summary><div class="list">${[...done].sort((a,b)=>(b.doneAt||0)-(a.doneAt||0)).slice(0,50).map(o=>ticket(o,true)).join("")}</div></details>`;
+  }
+  return `<div class="list">${h}</div>`;
+}
+
+function viewBarn(){
+  const needed = new Set(); openOrders().forEach(o=>o.items.forEach(i=>needed.add(key(i.name))));
+  let entries = Object.entries(state.barn).map(([k,v])=>({k,...v}));
+  needed.forEach(k=>{ if(!state.barn[k]){ const o=openOrders().flatMap(o=>o.items).find(i=>key(i.name)===k); entries.push({k,name:nice(o.name),n:0}); }});
+  const f = key(ui.barnFilter);
+  entries = entries.filter(e=>!f||key(e.name).includes(f)).sort((a,b)=>(needed.has(b.k)-needed.has(a.k))||a.name.localeCompare(b.name));
+  const rows = entries.map(e=>{
+    const shortBy = shortages().find(s=>key(s.name)===e.k);
+    return `<div class="barnitem"><div class="nm">${esc(e.name)}${shortBy?`<small>Orders need ${fmt(shortBy.short)} more</small>`:""}</div>
+    <div class="step"><button data-act="dec" data-name="${esc(e.name)}" aria-label="One less ${esc(e.name)}">−</button><input type="number" min="0" inputmode="numeric" id="have-${esc(e.k.replace(/\W+/g,"-"))}" data-act="set" data-name="${esc(e.name)}" value="${e.n}" aria-label="${esc(e.name)} count"><button data-act="inc" data-name="${esc(e.name)}" aria-label="One more ${esc(e.name)}">+</button></div></div>`;
+  }).join("");
+  return `<div class="list">
+    <div class="row spread"><h2 class="outlined">Barn and silo</h2></div>
+    <p class="note panel" style="margin:0">Type how many of each item you have. Items your open orders need show first.</p>
+    <div class="addrow">
+      <label for="bItem">Add an item<input id="bItem" list="itemNames" placeholder="e.g. Cheese" autocomplete="off"></label>
+      <label for="bQty">Have<input id="bQty" type="number" min="0" value="0" inputmode="numeric"></label>
+      <button class="btn hay" data-act="barn-add">Add</button>
+    </div>
+    ${entries.length>8||ui.barnFilter?`<label for="bFilter">Find<input id="bFilter" value="${esc(ui.barnFilter)}" placeholder="Search your barn"></label>`:""}
+    ${rows || `<div class="empty"><h3>Your barn is empty</h3>Add the items you have, or add an order first and its items will show up here for you to fill in.</div>`}
+    <section class="backup" aria-label="Backup">
+      <h2 class="outlined">Backup</h2>
+      <div class="sharecard">
+        <p class="note" style="margin:0">Your farm is saved only on this phone. Save a backup now and then, so you can bring everything back if you get a new phone or clear Safari.</p>
+        <div class="row">
+          <button class="btn hay" data-act="backup">Save a backup</button>
+          <button class="btn ghost" data-act="restore">Restore a backup</button>
+        </div>
+        <input type="file" id="restoreFile" accept=".json,application/json" hidden>
+        ${ui.restoreAsk?`<div class="confirm">This replaces everything on this phone with the backup. <button class="btn small" data-act="restore-yes">Replace</button><button class="btn small ghost" data-act="restore-no">Cancel</button></div>`:""}
+      </div>
+    </section>
+  </div>`;
+}
+
+function extras(){
+  const need = {}; openOrders().forEach(o=>o.items.forEach(i=>{ const k=key(i.name); need[k]=(need[k]||0)+i.qty; }));
+  return Object.entries(state.barn).map(([k,v])=>({name:v.name,spare:(v.n||0)-(need[k]||0)})).filter(x=>x.spare>0).sort((a,b)=>b.spare-a.spare);
+}
+function shareText(sh, ex){
+  const lines=[];
+  if(sh.length && ui.shareNeed!==false){ lines.push("Looking for:"); sh.forEach(s=>lines.push(`- ${s.name} x${s.short}`)); }
+  if(ex.length && ui.shareExtra!==false){ if(lines.length) lines.push(""); lines.push("Have extra:"); ex.slice(0,8).forEach(s=>lines.push(`- ${s.name} x${s.spare}`)); }
+  if(lines.length){ lines.push(""); lines.push("Message me if you can help!"); }
+  return lines.join("\n");
+}
+function viewShare(sh){
+  const ex = extras();
+  if(!sh.length && !ex.length) return "";
+  const txt = shareText(sh, ex);
+  return `<section class="share" aria-label="Share my needs">
+    <h2 class="outlined">Share my needs</h2>
+    <div class="sharecard">
+      <p class="note" style="margin:0">Copy this and paste it into your group chat or your neighborhood chat. You can change the words first.</p>
+      <div class="row">
+        ${sh.length?`<label class="tick" for="shNeed"><input type="checkbox" id="shNeed" data-act="sh-need" ${ui.shareNeed!==false?"checked":""}> What I need</label>`:""}
+        ${ex.length?`<label class="tick" for="shExtra"><input type="checkbox" id="shExtra" data-act="sh-extra" ${ui.shareExtra!==false?"checked":""}> What I have extra</label>`:""}
+      </div>
+      <textarea id="shareBox" rows="${Math.min(14,Math.max(3,txt.split("\n").length))}" aria-label="Message to share">${esc(txt)}</textarea>
+      <button class="btn hay" data-act="copy-share">Copy message</button>
+      ${ex.length>8&&ui.shareExtra!==false?`<p class="for" style="margin:0">Showing your 8 biggest extras so the message stays short.</p>`:""}
+    </div>
+  </section>`;
+}
+function viewMake(sh){
+  if(!sh.length) return `<div class="list"><h2 class="outlined">To make</h2><div class="empty"><h3>Nothing to make</h3>${openOrders().length?"You have everything your open orders need. Go deliver them!":"Once you add orders, anything you're short on shows up here."}</div>${viewShare(sh)}</div>`;
+  return `<div class="list"><h2 class="outlined">To make</h2><p class="note panel" style="margin:0">Everything your open orders still need, after counting what's in your barn.</p>
+    ${sh.map(s=>`<div class="make"><div><strong>${esc(s.name)}</strong><div class="for">Need ${fmt(s.qty)} across ${s.orders} order${s.orders>1?"s":""}, have ${fmt(s.have)}${TIMES[key(s.name)]?` · ${TIMES[key(s.name)][0]}, ${fmtTime(TIMES[key(s.name)][1])} each`:""}</div></div><b>${fmt(s.short)}</b></div>`).join("")}${viewShare(sh)}</div>`;
+}
+
+/* ---------- events ---------- */
+function captureDraft(){
+  if(!ui.adding) return; const d=ui.draft;
+  const g=id=>document.getElementById(id);
+  if(g("dType")) d.type=g("dType").value;
+  if(g("dWho")) d.who=g("dWho").value;
+  if(g("dCoins")) d.coins=g("dCoins").value;
+  if(g("dXp")) d.xp=g("dXp").value;
+}
+function addDraftItem(){
+  const n=document.getElementById("dItem"), q=document.getElementById("dQty");
+  const name=n.value.trim(); const qty=Math.max(1,Math.floor(+q.value||1));
+  if(!name){ n.focus(); return; }
+  captureDraft();
+  const ex = ui.draft.items.find(i=>key(i.name)===key(name));
+  if(ex) ex.qty+=qty; else ui.draft.items.push({name:nice(name),qty});
+  render(); const f=document.getElementById("dItem"); if(f) f.focus();
+}
+document.addEventListener("click", e=>{
+  const t = e.target.closest("[data-tab],[data-act]"); if(!t) return;
+  if(t.dataset.tab){ captureDraft(); ui.tab=t.dataset.tab; render(); return; }
+  const a=t.dataset.act, id=t.dataset.id;
+  if(a==="new"){ ui.adding=true; ui.draft={type:"Truck",who:"",items:[],coins:"",xp:""}; render(); document.getElementById("dItem")?.focus(); }
+  else if(a==="cancel"){ ui.adding=false; render(); }
+  else if(a==="copy-share"){
+    const box=document.getElementById("shareBox"); if(!box) return;
+    const fallback=()=>{ box.focus(); box.select(); toast("Text selected. Press copy on your keyboard or phone."); };
+    try{ navigator.clipboard.writeText(box.value).then(()=>toast("Copied! Paste it in your chat."), fallback); }catch(err){ fallback(); }
+  }
+  else if(a==="sh-need"){ ui.shareNeed=t.checked; render(); }
+  else if(a==="sh-extra"){ ui.shareExtra=t.checked; render(); }
+  else if(a==="backup"){
+    const name="farm-order-board-backup-"+new Date().toISOString().slice(0,10)+".json";
+    const blob=new Blob([JSON.stringify({app:"farm-order-board",version:1,savedAt:Date.now(),state},null,1)],{type:"application/json"});
+    const file=new File([blob],name,{type:"application/json"});
+    if(navigator.canShare && navigator.canShare({files:[file]})){ navigator.share({files:[file],title:"Farm Order Board backup"}).then(()=>toast("Backup saved"),()=>{}); }
+    else { const u=URL.createObjectURL(blob); const l=document.createElement("a"); l.href=u; l.download=name; document.body.appendChild(l); l.click(); l.remove(); setTimeout(()=>URL.revokeObjectURL(u),4000); toast("Backup downloaded"); }
+  }
+  else if(a==="restore"){ ui.restoreAsk=false; document.getElementById("restoreFile").click(); }
+  else if(a==="restore-no"){ ui.restoreAsk=false; ui.pending=null; render(); }
+  else if(a==="restore-yes"){ if(ui.pending){ state=ui.pending; ui.pending=null; ui.restoreAsk=false; persist(); render(); toast("Backup restored"); } }
+  else if(a==="sort"){ ui.sort=t.dataset.sort; try{ localStorage.setItem("farm-sort",ui.sort); }catch(e){} render(); }
+  else if(a==="add-item"){ addDraftItem(); }
+  else if(a==="rm-item"){ captureDraft(); ui.draft.items.splice(+t.dataset.ix,1); render(); }
+  else if(a==="save-order"){
+    captureDraft(); const d=ui.draft; if(!d.items.length) return;
+    state.orders.push({id:uid(),type:d.type,who:d.who.trim(),items:d.items,coins:Math.max(0,+d.coins||0),xp:Math.max(0,+d.xp||0),status:"open",created:Date.now()});
+    ui.adding=false; persist(); render(); toast("Order saved");
+  }
+  else if(a==="deliver"){
+    const o=state.orders.find(x=>x.id===id); if(!o||!isReady(o)) return;
+    const rr=t.getBoundingClientRect();
+    o.items.forEach(i=>setHave(i.name, have(i.name)-i.qty));
+    o.status="done"; o.doneAt=Date.now();
+    const keep = state.orders.filter(x=>x.status==="done").sort((a,b)=>b.doneAt-a.doneAt).slice(0,300).map(x=>x.id);
+    state.orders = state.orders.filter(x=>x.status!=="done"||keep.includes(x.id));
+    persist(); render(); toast(`Delivered for ${fmt(o.coins)} coins`); confetti(rr.left+rr.width/2, rr.top+rr.height/2);
+  }
+  else if(a==="undo"){
+    const o=state.orders.find(x=>x.id===id); if(!o) return;
+    o.items.forEach(i=>setHave(i.name, have(i.name)+i.qty));
+    o.status="open"; delete o.doneAt; persist(); render(); toast("Moved back to open orders");
+  }
+  else if(a==="del"){ ui.confirmDel=id; render(); }
+  else if(a==="del-no"){ ui.confirmDel=null; render(); }
+  else if(a==="del-yes"){ state.orders=state.orders.filter(x=>x.id!==id); ui.confirmDel=null; persist(); render(); toast("Order deleted"); }
+  else if(a==="inc"||a==="dec"){ setHave(t.dataset.name, have(t.dataset.name)+(a==="inc"?1:-1)); render(); }
+  else if(a==="barn-add"){
+    const n=document.getElementById("bItem"), q=document.getElementById("bQty");
+    if(!n.value.trim()){ n.focus(); return; }
+    setHave(n.value, +q.value||0); render(); document.getElementById("bItem")?.focus();
+  }
+  else if(a==="sample"){
+    const now=Date.now();
+    state.orders.push(
+      {id:uid(),type:"Truck",who:"Truck order",items:[{name:"Bread",qty:3},{name:"Cheese",qty:2}],coins:410,xp:39,status:"open",created:now,example:true},
+      {id:uid(),type:"Visitor",who:"Farmer Rosa",items:[{name:"Corn",qty:4}],coins:72,xp:8,status:"open",created:now-1,example:true},
+      {id:uid(),type:"Boat",who:"Boat crate",items:[{name:"Wool sweater",qty:1}],coins:290,xp:32,status:"open",created:now-2,example:true});
+    ["Bread:5","Cheese:1","Corn:12"].forEach(s=>{const [n,c]=s.split(":"); if(!state.barn[key(n)]) setHave(n,+c);});
+    persist(); render(); toast("Example orders added. Delete them anytime.");
+  }
+});
+document.addEventListener("change", e=>{
+  const t=e.target;
+  if(t.id==="restoreFile" && t.files && t.files[0]){
+    const r=new FileReader();
+    r.onload=()=>{ try{ const d=JSON.parse(r.result); const st=d.state||d; if(!st || !Array.isArray(st.orders) || typeof st.barn!=="object") throw 0; ui.pending={barn:st.barn,orders:st.orders}; ui.restoreAsk=true; render(); }catch(err){ toast("That file isn't a Farm Order Board backup"); } t.value=""; };
+    r.readAsText(t.files[0]); return;
+  }
+  if(t.dataset && t.dataset.act==="set"){ setHave(t.dataset.name, t.value); render(); }
+});
+document.addEventListener("input", e=>{
+  if(e.target.id==="bFilter"){ ui.barnFilter=e.target.value; const pos=e.target.selectionStart; render(); const f=document.getElementById("bFilter"); if(f){ f.focus(); f.setSelectionRange(pos,pos);} }
+});
+document.addEventListener("keydown", e=>{
+  if(e.key!=="Enter") return;
+  if(e.target.id==="dItem"||e.target.id==="dQty"){ e.preventDefault(); addDraftItem(); }
+  if(e.target.id==="bItem"||e.target.id==="bQty"){ e.preventDefault(); document.querySelector('[data-act="barn-add"]').click(); }
+  if(e.target.dataset && e.target.dataset.act==="set"){ e.target.blur(); }
+});
+
+boot();
+</script>
+
+</body>
+</html>
